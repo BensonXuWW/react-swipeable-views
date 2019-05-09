@@ -1,3 +1,8 @@
+# Fork from [react-swipeable-views](https://github.com/oliviertassinari/react-swipeable-views)
+
+- Add visibleSlidesCount to fix multi slides
+- Add pauseOnHover to support autoplay hover pause
+
 # react-swipeable-views
 
 > A React component for swipeable views.
