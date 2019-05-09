@@ -207,7 +207,7 @@ export default function virtualize(MyComponent) {
     /**
      * @ignore
      */
-    visibleSlidesCount: PropTypes.func,
+    visibleSlidesCount: PropTypes.number,
   };
 
   Virtualize.defaultProps = {
