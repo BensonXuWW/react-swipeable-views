@@ -10,7 +10,7 @@ import {
   computeIndex,
   getDisplaySameSlide,
   getIndexMax,
-} from 'react-swipeable-views-core';
+} from '@golden-unicorn/react-swipeable-views-core';
 
 function addEventListenerEnhanced(node, event, handler, options) {
   addEventListener(node, event, handler, options);

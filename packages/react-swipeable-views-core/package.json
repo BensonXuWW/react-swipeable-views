@@ -1,5 +1,5 @@
 {
-  "name": "react-swipeable-views-core",
+  "name": "@golden-unicorn/react-swipeable-views-core",
   "version": "0.13.1",
   "description": "react-swipeable-views core modules",
   "main": "lib/index.js",
