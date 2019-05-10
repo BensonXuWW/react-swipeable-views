@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import shallowEqual from 'fbjs/lib/shallowEqual';
-import { mod } from 'react-swipeable-views-core';
+import { mod, getIndexMax } from '@golden-unicorn/react-swipeable-views-core';
 
 export default function autoPlay(MyComponent) {
   class AutoPlay extends React.Component {
     timer = null;
+
+    isMouseHover = false;
 
     constructor(props) {
       super(props);
@@ -52,7 +54,7 @@ export default function autoPlay(MyComponent) {
     }
 
     handleInterval = () => {
-      const { children, direction, onChangeIndex, slideCount } = this.props;
+      const { children, direction, onChangeIndex, slideCount, visibleSlidesCount } = this.props;
 
       const indexLatest = this.state.index;
       let indexNew = indexLatest;
@@ -64,7 +66,7 @@ export default function autoPlay(MyComponent) {
       }
 
       if (slideCount || children) {
-        indexNew = mod(indexNew, slideCount || React.Children.count(children));
+        indexNew = mod(indexNew, slideCount || getIndexMax({ visibleSlidesCount, children }) + 1);
       }
 
       // Is uncontrolled
@@ -105,8 +107,33 @@ export default function autoPlay(MyComponent) {
       }
     };
 
+    handleMouseEnter = e => {
+      const { onMouseEnter } = this.props;
+
+      this.isMouseHover = true;
+      clearInterval(this.timer);
+
+      if (typeof onMouseEnter === 'function') {
+        onMouseEnter(e);
+      }
+    };
+
+    handleMouseLeave = e => {
+      const { onMouseLeave } = this.props;
+      this.isMouseHover = false;
+      this.startInterval();
+
+      if (typeof onMouseLeave === 'function') {
+        onMouseLeave(e);
+      }
+    };
+
     startInterval() {
-      const { autoplay, interval } = this.props;
+      const { autoplay, interval, pauseOnHover } = this.props;
+
+      if (pauseOnHover && this.isMouseHover) {
+        return;
+      }
 
       clearInterval(this.timer);
 
@@ -122,6 +149,7 @@ export default function autoPlay(MyComponent) {
         index: indexProp,
         interval,
         onChangeIndex,
+        pauseOnHover,
         ...other
       } = this.props;
 
@@ -131,12 +159,20 @@ export default function autoPlay(MyComponent) {
         return <MyComponent index={index} onChangeIndex={onChangeIndex} {...other} />;
       }
 
+      const pauseOnHoverProps = pauseOnHover
+        ? {
+            onMouseEnter: this.handleMouseEnter,
+            onMouseLeave: this.handleMouseLeave,
+          }
+        : {};
+
       return (
         <MyComponent
           index={index}
           onChangeIndex={this.handleChangeIndex}
           onSwitching={this.handleSwitching}
           {...other}
+          {...pauseOnHoverProps}
         />
       );
     }
@@ -175,12 +211,17 @@ export default function autoPlay(MyComponent) {
      * @ignore
      */
     slideCount: PropTypes.number,
+    /**
+     * @ignore
+     */
+    visibleSlidesCount: PropTypes.number,
   };
 
   AutoPlay.defaultProps = {
     autoplay: true,
     direction: 'incremental',
     interval: 3000,
+    visibleSlidesCount: 1,
   };
 
   return AutoPlay;

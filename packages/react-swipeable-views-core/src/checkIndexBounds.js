@@ -1,10 +1,10 @@
-import React from 'react';
 import warning from 'warning';
+import getIndexMax from './getIndexMax';
 
 const checkIndexBounds = props => {
-  const { index, children } = props;
+  const { index } = props;
 
-  const childrenCount = React.Children.count(children);
+  const childrenCount = getIndexMax(props);
 
   warning(
     index >= 0 && index <= childrenCount,

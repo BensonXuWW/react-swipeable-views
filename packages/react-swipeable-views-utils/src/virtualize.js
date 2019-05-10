@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { mod } from 'react-swipeable-views-core';
+import { mod } from '@golden-unicorn/react-swipeable-views-core';
 
 export default function virtualize(MyComponent) {
   class Virtualize extends PureComponent {
@@ -72,10 +72,10 @@ export default function virtualize(MyComponent) {
     }
 
     setWindow(index = this.state.index) {
-      const { slideCount } = this.props;
+      const { slideCount, overscanSlideBefore, overscanSlideAfter } = this.props;
 
-      let beforeAhead = this.props.overscanSlideBefore;
-      let afterAhead = this.props.overscanSlideAfter;
+      let beforeAhead = overscanSlideBefore;
+      let afterAhead = overscanSlideAfter;
 
       if (slideCount) {
         if (beforeAhead > index) {
@@ -204,6 +204,10 @@ export default function virtualize(MyComponent) {
      * ({ index: number }): node.
      */
     slideRenderer: PropTypes.func.isRequired,
+    /**
+     * @ignore
+     */
+    visibleSlidesCount: PropTypes.number,
   };
 
   Virtualize.defaultProps = {
@@ -211,6 +215,7 @@ export default function virtualize(MyComponent) {
     // Render one more slide for going backward as it's more difficult to
     // keep the window up to date.
     overscanSlideBefore: 3,
+    visibleSlidesCount: 1,
   };
 
   return Virtualize;

@@ -17,6 +17,7 @@ describe('computeIndex', () => {
       pageX: 10,
       viewLength: 100,
       resistance: false,
+      visibleSlidesCount: 1,
     }).index;
 
     assert.strictEqual(actual, 0.4);
@@ -31,6 +32,7 @@ describe('computeIndex', () => {
         pageX: 50,
         viewLength: 100,
         resistance: false,
+        visibleSlidesCount: 1,
       }).index;
 
       assert.strictEqual(actual, 0);
@@ -44,6 +46,7 @@ describe('computeIndex', () => {
         pageX: 50,
         viewLength: 100,
         resistance: true,
+        visibleSlidesCount: 1,
       }).index;
 
       assert.closeTo(actual, -0.21, 0.05);

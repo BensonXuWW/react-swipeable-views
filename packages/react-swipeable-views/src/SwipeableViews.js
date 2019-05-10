@@ -9,7 +9,8 @@ import {
   checkIndexBounds,
   computeIndex,
   getDisplaySameSlide,
-} from 'react-swipeable-views-core';
+  getIndexMax,
+} from '@golden-unicorn/react-swipeable-views-core';
 
 function addEventListenerEnhanced(node, event, handler, options) {
   addEventListener(node, event, handler, options);
@@ -198,6 +199,10 @@ export function findNativeHandler(params) {
   });
 }
 
+function getSlideWidth(visibleSlidesCount) {
+  return parseFloat((100 / visibleSlidesCount).toFixed(10));
+}
+
 class SwipeableViews extends React.Component {
   rootNode = null;
 
@@ -331,6 +336,14 @@ class SwipeableViews extends React.Component {
     clearTimeout(this.firstRenderTimeout);
   }
 
+  getTransformValue() {
+    const { axis, visibleSlidesCount } = this.props;
+
+    return axisProperties.transform[axis](
+      (this.indexCurrent * getSlideWidth(visibleSlidesCount)).toFixed(10),
+    );
+  }
+
   setIndexCurrent(indexCurrent) {
     if (!this.props.animateTransitions && this.indexCurrent !== indexCurrent) {
       this.handleTransitionEnd();
@@ -339,8 +352,7 @@ class SwipeableViews extends React.Component {
     this.indexCurrent = indexCurrent;
 
     if (this.containerNode) {
-      const { axis } = this.props;
-      const transform = axisProperties.transform[axis](indexCurrent * 100);
+      const transform = this.getTransformValue();
       this.containerNode.style.WebkitTransform = transform;
       this.containerNode.style.transform = transform;
     }
@@ -428,8 +440,7 @@ class SwipeableViews extends React.Component {
         !resistance &&
         (axis === 'y' || axis === 'y-reverse') &&
         ((this.indexCurrent === 0 && this.startX < touch.pageX) ||
-          (this.indexCurrent === React.Children.count(this.props.children) - 1 &&
-            this.startX > touch.pageX))
+          (this.indexCurrent === getIndexMax(this.props) && this.startX > touch.pageX))
       ) {
         this.isSwiping = false;
         return;
@@ -466,6 +477,7 @@ class SwipeableViews extends React.Component {
       startIndex: this.startIndex,
       startX: this.startX,
       viewLength: this.viewLength,
+      visibleSlidesCount: this.props.visibleSlidesCount,
     });
 
     // Add support for native scroll elements.
@@ -547,7 +559,7 @@ class SwipeableViews extends React.Component {
       indexNew = indexLatest;
     }
 
-    const indexMax = React.Children.count(this.props.children) - 1;
+    const indexMax = getIndexMax(this.props);
 
     if (indexNew < 0) {
       indexNew = 0;
@@ -715,6 +727,7 @@ class SwipeableViews extends React.Component {
       springConfig,
       style,
       threshold,
+      visibleSlidesCount,
       ...other
     } = this.props;
 
@@ -750,7 +763,14 @@ The custom height has a higher priority than the animateHeight property.
 So animateHeight is most likely having no effect at all.`,
     );
 
-    const slideStyle = Object.assign({}, styles.slide, slideStyleProp);
+    const slideStyle = Object.assign(
+      {},
+      styles.slide,
+      {
+        width: `${getSlideWidth(visibleSlidesCount)}%`,
+      },
+      slideStyleProp,
+    );
 
     let transition;
     let WebkitTransition;
@@ -779,7 +799,7 @@ So animateHeight is most likely having no effect at all.`,
 
     // Apply the styles for SSR considerations
     if (!renderOnlyActive) {
-      const transform = axisProperties.transform[axis](this.indexCurrent * 100);
+      const transform = this.getTransformValue();
       containerStyle.WebkitTransform = transform;
       containerStyle.transform = transform;
     }
@@ -1001,6 +1021,10 @@ SwipeableViews.propTypes = {
    * If the computed speed is above this value, the index change.
    */
   threshold: PropTypes.number,
+  /**
+   * Default is 1
+   */
+  visibleSlidesCount: PropTypes.number,
 };
 
 SwipeableViews.defaultProps = {
@@ -1020,6 +1044,7 @@ SwipeableViews.defaultProps = {
     delay: '0s',
   },
   resistance: false,
+  visibleSlidesCount: 1,
 };
 
 SwipeableViews.childContextTypes = {

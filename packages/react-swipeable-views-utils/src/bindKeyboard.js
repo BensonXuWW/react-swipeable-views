@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import keycode from 'keycode';
 import EventListener from 'react-event-listener';
-import { mod } from 'react-swipeable-views-core';
+import { mod, getIndexMax } from '@golden-unicorn/react-swipeable-views-core';
 
 export default function bindKeyboard(MyComponent) {
   class BindKeyboard extends React.Component {
@@ -27,6 +27,14 @@ export default function bindKeyboard(MyComponent) {
        * @ignore
        */
       slideCount: PropTypes.number,
+      /**
+       * @ignore
+       */
+      visibleSlidesCount: PropTypes.number,
+    };
+
+    static defaultProps = {
+      visibleSlidesCount: 1,
     };
 
     state = {};
@@ -49,7 +57,7 @@ export default function bindKeyboard(MyComponent) {
 
     handleKeyDown = event => {
       let action;
-      const { axis = 'x', children, onChangeIndex, slideCount } = this.props;
+      const { axis = 'x', children, onChangeIndex, slideCount, visibleSlidesCount } = this.props;
 
       switch (keycode(event)) {
         case 'page down':
@@ -101,7 +109,7 @@ export default function bindKeyboard(MyComponent) {
         }
 
         if (slideCount || children) {
-          indexNew = mod(indexNew, slideCount || React.Children.count(children));
+          indexNew = mod(indexNew, slideCount || getIndexMax({ visibleSlidesCount, children }) + 1);
         }
 
         // Is uncontrolled
