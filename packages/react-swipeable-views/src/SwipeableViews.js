@@ -372,7 +372,7 @@ class SwipeableViews extends React.Component {
   };
 
   handleSwipeStart = event => {
-    const { axis } = this.props;
+    const { axis, visibleSlidesCount } = this.props;
 
     const touch = applyRotationMatrix(event.touches[0], axis);
 
@@ -405,10 +405,11 @@ class SwipeableViews extends React.Component {
       );
 
       this.startIndex =
-        -tranformNormalized.pageX /
+        (-tranformNormalized.pageX /
           (this.viewLength -
             parseInt(rootStyle.paddingLeft, 10) -
-            parseInt(rootStyle.paddingRight, 10)) || 0;
+            parseInt(rootStyle.paddingRight, 10))) *
+          visibleSlidesCount || 0;
     }
   };
 
